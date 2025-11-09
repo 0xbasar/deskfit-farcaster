@@ -226,12 +226,13 @@
             
             // --- THE FINAL-FINAL FIX ---
             // Check if we are in a Farcaster client environment.
-            if (typeof Farcaster !== 'undefined' && Farcaster.actions) {
-                // Add a small delay to solve the race condition with the dev preview tool.
-                // This gives the tool's environment time to fully initialize before we send our signal.
+            if (typeof sdk !== 'undefined' && sdk.actions) {
                 setTimeout(() => {
-                    Farcaster.actions.ready();
-                }, 100); // 100 milliseconds is a safe and unnoticeable delay.
+                    sdk.actions.ready();
+                    console.log("✅ Farcaster Mini App is ready");
+                }, 100);
+            } else {
+                console.warn("⚠️ Farcaster SDK not detected. If testing locally, this is normal.");
             }
         });
     </script>
