@@ -474,6 +474,10 @@
         updateXPDisplay();
         updateStreakDisplay();
         showTaskActionButtons(false); // Start with only 'Get a New Task' button
+
+        // --- NEW: Signal to the Farcaster client that the app is ready ---
+        Farcaster.actions.ready();
+
     </script>
 </body>
 </html>
