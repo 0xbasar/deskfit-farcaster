@@ -224,20 +224,20 @@
     updateStreakDisplay();
     showTaskActionButtons(false);
 
-    // --- THE FARCASTER READY FIX ---
-    // Call this once everything is loaded.
-    if (typeof sdk !== 'undefined' && sdk.actions) {
-        try {
-            sdk.actions.ready();
-            console.log("✅ Farcaster Mini App is ready");
-        } catch (err) {
-            console.error("⚠️ Error calling sdk.actions.ready():", err);
+    // ✅ Farcaster Mini App "Ready" Fix (run when SDK becomes available)
+    (function waitForFarcasterSDK() {
+        if (typeof window.sdk !== 'undefined' && window.sdk.actions) {
+            try {
+                window.sdk.actions.ready();
+                console.log("✅ Farcaster Mini App is ready");
+            } catch (err) {
+                console.error("⚠️ Error calling sdk.actions.ready():", err);
+            }
+        } else {
+            console.log("⏳ Waiting for Farcaster SDK...");
+            setTimeout(waitForFarcasterSDK, 200);
         }
-    } else {
-        console.warn("⚠️ Farcaster SDK not detected. If testing locally, this is normal.");
-    }
-
-}); // 👈 this closes your window.addEventListener('load', …)
+    })();
 </script>
 </body>
 </html>
