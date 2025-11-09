@@ -5,11 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeskFit - Your Micro-Habit Tracker</title>
     
-    <!-- Farcaster SDK -->
     <script src="https://farcaster.dev/js/index.js"></script>
 
     <style>
-        /* (all your CSS unchanged) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(to bottom right, #e0f2f7, #c1e4f4); /* Light blue gradient */
+            color: #333;
+            text-align: center;
+        }
+
+        .app-container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        h1 {
+            color: #2c3e50; /* Darker blue for heading */
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        p.tagline {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        .task-display {
+            background-color: #f8f8f8;
+            border: 1px solid #dcdcdc;
+            border-radius: 10px;
+            padding: 25px 20px;
+            min-height: 100px; /* Increased height to accommodate XP */
+            display: flex;
+            flex-direction: column; /* Stack task and XP */
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #34495e; /* Medium blue for task text */
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .task-display.new-task {
+            animation: fadeInScale 0.5s ease-out;
+        }
+
+        .task-text {
+            margin-bottom: 10px; /* Space between task and XP */
+        }
+
+        .xp-text {
+            font-size: 0.9em;
+            color: #27ae60; /* Green for XP */
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .xp-text::before {
+            content: '✨'; /* Sparkle emoji for XP */
+            font-size: 1.2em;
+        }
+
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        button {
+            background-color: #3498db; /* Bright blue button */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            flex: 1; /* Allow buttons to grow and fill space */
+            min-width: 120px; /* Minimum width for buttons */
+        }
+
+        button.complete {
+            background-color: #2ecc71; /* Green for complete */
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        button.complete:hover {
+            background-color: #27ae60;
+        }
+
+        button.skip {
+            background-color: #e74c3c; /* Red for skip */
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        button.skip:hover {
+            background-color: #c0392b;
+        }
+
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.4);
+        }
+
+        .total-xp-display, .streak-display {
+            margin-top: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .total-xp-display::before {
+            content: '⭐'; /* Star emoji for total XP */
+            font-size: 1.3em;
+        }
+
+        .streak-display::before {
+            content: '🔥'; /* Fire emoji for streak */
+            font-size: 1.3em;
+        }
     </style>
 </head>
 <body>
@@ -28,6 +182,7 @@
             <button id="getNewTaskButton">Get a New Task</button>
         </div>
 
+
         <div id="totalXPDisplay" class="total-xp-display">
             Total XP: <span id="xpValue">0</span>
         </div>
@@ -38,8 +193,8 @@
 
     <script>
         window.addEventListener('load', () => {
-            const tasks = [ /* all your task data unchanged */ ];
 
+            const tasks = [ { text: "Stand for 10 minutes", xp: 15 }, { text: "Take 3 floors with stairs", xp: 20 }, { text: "Skip snacks for today", xp: 25 }, { text: "Drink a glass of water", xp: 10 }, { text: "Stretch your arms overhead", xp: 10 }, { text: "Roll your shoulders backward 10 times", xp: 10 }, { text: "Walk one lap around the room", xp: 15 }, { text: "Walk while on a call", xp: 15 }, { text: "Do 10 squats", xp: 20 }, { text: "Touch your toes 10 times", xp: 15 }, { text: "Refill your water bottle", xp: 10 }, { text: "Do calf raises for 30 seconds", xp: 15 }, { text: "Walk to a colleague instead of messaging", xp: 20 }, { text: "Stand during your next meeting", xp: 15 }, { text: "March in place for 1 minute", xp: 15 }, { text: "Do a 2 minute stretch break", xp: 10 }, { text: "Take a short walk after lunch", xp: 20 }, { text: "Stand on one leg for 20 seconds per side", xp: 15 }, { text: "Do a wall sit for 30 seconds", xp: 20 }, { text: "Straighten your posture for 1 minute", xp: 10 }, { text: "Stretch your wrists and fingers", xp: 10 }, { text: "Rotate your neck gently", xp: 10 }, { text: "Do 15 chair squats", xp: 15 }, { text: "Take the long route to the restroom", xp: 15 }, { text: "Do 10 push ups against the wall", xp: 20 }, { text: "Balance on one foot for 30 seconds", xp: 15 }, { text: "Walk outside for 5 minutes", xp: 25 }, { text: "Do ankle circles", xp: 10 }, { text: "Sit upright for the next 30 minutes", xp: 10 }, { text: "Do a 15 second plank", xp: 20 }, { text: "Stretch your back gently", xp: 10 }, { text: "Do 10 lunges", xp: 20 }, { text: "Walk to refill water on another floor", xp: 20 }, { text: "Walk 100 steps after eating", xp: 15 }, { text: "Stand while reading emails", xp: 10 }, { text: "Refill your bottle twice before lunch", xp: 15 }, { text: "Drink a glass of water before coffee", xp: 10 }, { text: "Take 3 sips of water every 15 minutes", xp: 15 }, { text: "Track total glasses of water today", xp: 20 }, { text: "Drink one cup of water per hour", xp: 15 }, { text: "Skip sugary drinks today", xp: 25 }, { text: "Have fruit instead of a snack", xp: 20 }, { text: "Eat lunch away from your desk", xp: 20 }, { text: "Chew slowly and mindfully", xp: 15 }, { text: "Have a smaller lunch portion", xp: 15 }, { text: "Avoid vending machine snacks", xp: 25 }, { text: "Prepare your own lunch", xp: 20 }, { text: "Eat one green item today", xp: 15 }, { text: "Replace dessert with herbal tea", xp: 20 }, { text: "Drink a glass of water before lunch", xp: 10 }, { text: "Skip coffee this afternoon", xp: 20 }, { text: "Replace soda with water", xp: 25 }, { text: "Track calories for one meal", xp: 20 }, { text: "Take stairs instead of elevator", xp: 20 }, { text: "Walk while brainstorming", xp: 15 }, { text: "Step away from desk for 5 minutes", xp: 15 }, { text: "Look out the window for 30 seconds", xp: 10 }, { text: "Do 10 deep breaths", xp: 10 }, { text: "Blink slowly 10 times", xp: 10 }, { text: "Stretch your chest open", xp: 10 }, { text: "Move your eyes off the screen for 20 seconds", xp: 10 }, { text: "Adjust your chair posture", xp: 10 }, { text: "Stand up every 45 minutes", xp: 15 }, { text: "Take a deep squat for 15 seconds", xp: 15 }, { text: "Do arm circles for 20 seconds", xp: 10 }, { text: "Walk the perimeter of your floor", xp: 20 }, { text: "Do 10 triceps dips on chair edge", xp: 15 }, { text: "Walk to talk to someone instead of texting", xp: 15 }, { text: "Use restroom on another floor", xp: 15 }, { text: "Stretch hamstrings at your desk", xp: 10 }, { text: "Sit cross legged for 5 minutes", xp: 15 }, { text: "Take a 5 minute walk outside", xp: 25 }, { text: "Straighten your spine while sitting", xp: 10 }, { text: "Relax your shoulders consciously", xp: 10 }, { text: "Do 10 jumping jacks", xp: 20 }, { text: "Hold a plank for 20 seconds", xp: 20 }, { text: "Walk around before your next call", xp: 15 }, { text: "Stretch your calves against the wall", xp: 10 }, { text: "Do side bends 10 times", xp: 15 }, { text: "Do torso twists for 1 minute", xp: 15 }, { text: "Do seated leg lifts", xp: 10 }, { text: "Lift both arms and reach high", xp: 10 }, { text: "Walk 200 steps before lunch", xp: 15 }, { text: "Stand up between every email", xp: 10 }, { text: "Walk for 2 minutes before break", xp: 15 }, { text: "Close your eyes for 30 seconds", xp: 10 }, { text: "Smile for 30 seconds", xp: 10 }, { text: "Compliment a colleague", xp: 10 }, { text: "Take a screen free break", xp: 15 }, { text: "Do slow breathing: 4 in, 6 out, repeat 5x", xp: 15 }, { text: "Step outside and get sunlight", xp: 20 }, { text: "Clean your desk surface", xp: 10 }, { text: "Organize one drawer", xp: 10 }, { text: "Write down three things you’re grateful for", xp: 15 }, { text: "Do gentle neck stretches", xp: 10 }, { text: "Move your legs under the desk", xp: 10 }, { text: "Stand when reading a document", xp: 10 }, { text: "Walk while listening to music", xp: 15 }, { text: "Stand for your next meeting", xp: 15 }, { text: "Take the stairs twice today", xp: 20 }, { text: "Walk 500 steps before 10 a.m.", xp: 25 }, { text: "Walk 500 steps after 3 p.m.", xp: 25 }, { text: "Do a micro stretch after every call", xp: 10 }, { text: "Take 5 deep breaths before replying to emails", xp: 15 }, { text: "Do 10 wall pushups", xp: 15 }, { text: "Stand when brainstorming ideas", xp: 10 }, { text: "Look far into the distance to rest eyes", xp: 10 }, { text: "Straighten your wrists and fingers", xp: 10 }, { text: "Stand while drinking water", xp: 10 }, { text: "Do 10 side lunges", xp: 20 }, { text: "Do hip rotations for 30 seconds", xp: 15 }, { text: "Do calf raises while waiting", xp: 10 }, { text: "Refill your bottle after every meeting", xp: 15 }, { text: "Move your printer farther away", xp: 15 }, { text: "Take 100 steps after lunch", xp: 15 }, { text: "Replace snack with water", xp: 20 }, { text: "Eat slowly at lunch", xp: 15 }, { text: "Avoid second servings", xp: 20 }, { text: "Don’t eat at your desk today", xp: 20 }, { text: "Plan your lunch tomorrow", xp: 15 }, { text: "Drink only water between meals", xp: 20 }, { text: "Avoid sugar today", xp: 25 }, { text: "Stretch before lunch", xp: 10 }, { text: "Take a 10 minute walk after work", xp: 25 }, { text: "Move around while talking on the phone", xp: 15 }, { text: "Do posture check every hour", xp: 10 }, { text: "Take a walk before checking social media", xp: 15 }, { text: "Stretch your hands every hour", xp: 10 }, { text: "Keep your shoulders back", xp: 10 }, { text: "Take a micro nap (2–5 min rest)", xp: 15 }, { text: "Read something inspiring", xp: 10 }, { text: "Stand in sunlight for 1 minute", xp: 15 }, { text: "Stretch chest and back for 30 seconds", xp: 10 }, { text: "Adjust your monitor height", xp: 10 }, { text: "Keep feet flat for posture", xp: 10 }, { text: "Do 10 second breathing reset", xp: 10 }, { text: "Drink water before leaving desk", xp: 10 }, { text: "Walk before your coffee break", xp: 15 }, { text: "Avoid screens for 3 minutes", xp: 15 }, { text: "Take stairs one extra time today", xp: 15 }, { text: "Walk to refill your bottle three times", xp: 20 }, { text: "Stretch your neck while waiting", xp: 10 }, { text: "Stand while reading notes", xp: 10 }, { text: "Stand while waiting for downloads", xp: 10 }, { text: "Do 15 chair squats", xp: 15 }, { text: "Take a few slow, deep breaths", xp: 10 }, { text: "Lift knees while sitting", xp: 10 }, { text: "Walk across office once per hour", xp: 15 }, { text: "Drink a glass of water right now", xp: 10 }, { text: "Stand after finishing each task", xp: 10 }, { text: "Stretch calves while brushing teeth", xp: 10 }, { text: "Balance on one leg while thinking", xp: 15 }, { text: "Laugh intentionally", xp: 10 }, { text: "Smile at someone walking by", xp: 10 }, { text: "Listen to calm music", xp: 10 }, { text: "Walk outdoors if possible", xp: 20 }, { text: "Do one minute of mindfulness", xp: 15 }, { text: "Take one long breath before replying to messages", xp: 10 }, { text: "Sit tall and straighten your spine", xp: 10 }, { text: "Walk in place while reading", xp: 10 }, { text: "Take a few mindful steps", xp: 10 }, { text: "Stretch both sides equally", xp: 10 }, { text: "Raise both arms like a “Y”", xp: 10 }, { text: "Stand for 5 minutes every hour", xp: 15 }, { text: "Drink water before your next task", xp: 10 }, { text: "Walk before your break", xp: 15 }, { text: "Look away from your screen for 20 seconds", xp: 10 }, { text: "Straighten your posture now", xp: 10 }, { text: "Sit at the edge of your chair for 1 minute", xp: 10 }, { text: "Stretch your legs under your desk", xp: 10 }, { text: "Walk slowly around your floor", xp: 15 }, { text: "Roll your shoulders backward", xp: 10 }, { text: "Stretch your forearms", xp: 10 }, { text: "Close your eyes for 10 seconds", xp: 10 }, { text: "Rotate ankles in circles", xp: 10 }, { text: "Take deep breaths before meetings", xp: 10 }, { text: "Walk around before sitting down", xp: 15 }, { text: "Check your sitting position", xp: 10 }, { text: "Stand while texting", xp: 10 }, { text: "Do side stretches", xp: 10 }, { text: "Roll your neck gently", xp: 10 }, { text: "Stretch your legs after sitting long", xp: 10 }, { text: "Move arms in circles", xp: 10 }, { text: "Take stairs at least once", xp: 15 }, { text: "Walk 5 minutes before heading home", xp: 20 }, { text: "Stretch back after long sitting", xp: 10 }, { text: "Drink one last glass of water", xp: 10 }, { text: "Take 10 mindful breaths before bed", xp: 15 }, { text: "Reflect on your activity today", xp: 10 }, { text: "Plan tomorrow’s movement goals", xp: 10 }, { text: "Avoid snacks after dinner", xp: 20 }, { text: "Sleep early tonight", xp: 20 }, { text: "Wake up and stretch immediately", xp: 15 }, { text: "Drink water first thing in the morning", xp: 10 }, { text: "Walk for 5 minutes before breakfast", xp: 15 }, { text: "Do 10 squats after waking up", xp: 20 }, { text: "Walk to work or school if possible", xp: 30 }, { text: "Use stairs instead of elevator", xp: 25 }, { text: "Do a 2-minute morning stretch", xp: 15 }, { text: "Start your day standing instead of sitting", xp: 15 }];
             const getNewTaskButton = document.getElementById('getNewTaskButton');
             const completeTaskButton = document.getElementById('completeTaskButton');
             const skipTaskButton = document.getElementById('skipTaskButton');
@@ -48,93 +203,35 @@
             const currentTaskXPElement = document.getElementById('currentTaskXP');
             const totalXPDisplay = document.getElementById('xpValue');
             const streakDisplay = document.getElementById('streakValue');
-
             let totalXP = 0;
             let streak = 0;
             let currentTask = null;
-
-            function loadState() {
-                const savedXP = localStorage.getItem('deskfit_totalXP');
-                const savedStreak = localStorage.getItem('deskfit_streak');
-                if (savedXP !== null) totalXP = parseInt(savedXP, 10);
-                if (savedStreak !== null) streak = parseInt(savedStreak, 10);
-            }
-
-            function saveState() {
-                localStorage.setItem('deskfit_totalXP', totalXP);
-                localStorage.setItem('deskfit_streak', streak);
-            }
-
-            function updateXPDisplay() {
-                totalXPDisplay.textContent = totalXP;
-            }
-
-            function updateStreakDisplay() {
-                streakDisplay.textContent = streak;
-            }
-
-            function showTaskActionButtons(show) {
-                completeTaskButton.style.display = show ? 'flex' : 'none';
-                skipTaskButton.style.display = show ? 'flex' : 'none';
-                getNewTaskButton.style.display = show ? 'none' : 'flex';
-            }
-
-            function getNewTask() {
-                const randomIndex = Math.floor(Math.random() * tasks.length);
-                currentTask = tasks[randomIndex];
-                taskDisplay.classList.remove('new-task');
-                void taskDisplay.offsetWidth;
-                taskTextElement.textContent = currentTask.text;
-                currentTaskXPElement.textContent = `${currentTask.xp} XP`;
-                taskDisplay.classList.add('new-task');
-                showTaskActionButtons(true);
-            }
-
-            function completeTask() {
-                if (currentTask) {
-                    totalXP += currentTask.xp;
-                    streak++;
-                    updateXPDisplay();
-                    updateStreakDisplay();
-                    saveState();
-                    currentTask = null;
-                    taskTextElement.textContent = "Great job! Get a new task.";
-                    currentTaskXPElement.textContent = "";
-                    showTaskActionButtons(false);
-                }
-            }
-
-            function skipTask() {
-                if (currentTask) {
-                    streak = 0;
-                    updateStreakDisplay();
-                    saveState();
-                    currentTask = null;
-                    taskTextElement.textContent = "Task skipped. Try another one!";
-                    currentTaskXPElement.textContent = "";
-                    showTaskActionButtons(false);
-                }
-            }
-
-            // --- App Initialization ---
+            function loadState() { const savedXP = localStorage.getItem('deskfit_totalXP'); const savedStreak = localStorage.getItem('deskfit_streak'); if (savedXP !== null) totalXP = parseInt(savedXP, 10); if (savedStreak !== null) streak = parseInt(savedStreak, 10); }
+            function saveState() { localStorage.setItem('deskfit_totalXP', totalXP); localStorage.setItem('deskfit_streak', streak); }
+            function updateXPDisplay() { totalXPDisplay.textContent = totalXP; }
+            function updateStreakDisplay() { streakDisplay.textContent = streak; }
+            function showTaskActionButtons(show) { completeTaskButton.style.display = show ? 'flex' : 'none'; skipTaskButton.style.display = show ? 'flex' : 'none'; getNewTaskButton.style.display = show ? 'none' : 'flex'; }
+            function getNewTask() { const randomIndex = Math.floor(Math.random() * tasks.length); currentTask = tasks[randomIndex]; taskDisplay.classList.remove('new-task'); void taskDisplay.offsetWidth; taskTextElement.textContent = currentTask.text; currentTaskXPElement.textContent = `${currentTask.xp} XP`; taskDisplay.classList.add('new-task'); showTaskActionButtons(true); }
+            function completeTask() { if (currentTask) { totalXP += currentTask.xp; streak++; updateXPDisplay(); updateStreakDisplay(); saveState(); currentTask = null; taskTextElement.textContent = "Great job! Get a new task."; currentTaskXPElement.textContent = ""; showTaskActionButtons(false); } }
+            function skipTask() { if (currentTask) { streak = 0; updateStreakDisplay(); saveState(); currentTask = null; taskTextElement.textContent = "Task skipped. Try another one!"; currentTaskXPElement.textContent = ""; showTaskActionButtons(false); } }
+            
+            // App Initialization
             getNewTaskButton.addEventListener('click', getNewTask);
             completeTaskButton.addEventListener('click', completeTask);
             skipTaskButton.addEventListener('click', skipTask);
-
             loadState();
             updateXPDisplay();
             updateStreakDisplay();
             showTaskActionButtons(false);
-
-            // ✅ FIXED: Proper Farcaster SDK ready call
-            if (typeof sdk !== 'undefined' && sdk.actions) {
-                // Give the SDK a moment to initialize (helps in dev preview)
+            
+            // --- THE FINAL-FINAL FIX ---
+            // Check if we are in a Farcaster client environment.
+            if (typeof Farcaster !== 'undefined' && Farcaster.actions) {
+                // Add a small delay to solve the race condition with the dev preview tool.
+                // This gives the tool's environment time to fully initialize before we send our signal.
                 setTimeout(() => {
-                    sdk.actions.ready();
-                    console.log("✅ Farcaster SDK ready called");
-                }, 100);
-            } else {
-                console.warn("⚠️ Farcaster SDK not found");
+                    Farcaster.actions.ready();
+                }, 100); // 100 milliseconds is a safe and unnoticeable delay.
             }
         });
     </script>
