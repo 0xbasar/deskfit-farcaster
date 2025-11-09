@@ -215,26 +215,29 @@
             function completeTask() { if (currentTask) { totalXP += currentTask.xp; streak++; updateXPDisplay(); updateStreakDisplay(); saveState(); currentTask = null; taskTextElement.textContent = "Great job! Get a new task."; currentTaskXPElement.textContent = ""; showTaskActionButtons(false); } }
             function skipTask() { if (currentTask) { streak = 0; updateStreakDisplay(); saveState(); currentTask = null; taskTextElement.textContent = "Task skipped. Try another one!"; currentTaskXPElement.textContent = ""; showTaskActionButtons(false); } }
             
-            // App Initialization
-            getNewTaskButton.addEventListener('click', getNewTask);
-            completeTaskButton.addEventListener('click', completeTask);
-            skipTaskButton.addEventListener('click', skipTask);
-            loadState();
-            updateXPDisplay();
-            updateStreakDisplay();
-            showTaskActionButtons(false);
-            
-            // --- THE FINAL-FINAL FIX ---
-            // Check if we are in a Farcaster client environment.
-            if (typeof sdk !== 'undefined' && sdk.actions) {
-                setTimeout(() => {
-                    sdk.actions.ready();
-                    console.log("✅ Farcaster Mini App is ready");
-                }, 100);
-            } else {
-                console.warn("⚠️ Farcaster SDK not detected. If testing locally, this is normal.");
-            }
-        });
-    </script>
+                // App Initialization
+    getNewTaskButton.addEventListener('click', getNewTask);
+    completeTaskButton.addEventListener('click', completeTask);
+    skipTaskButton.addEventListener('click', skipTask);
+    loadState();
+    updateXPDisplay();
+    updateStreakDisplay();
+    showTaskActionButtons(false);
+
+    // --- THE FARCASTER READY FIX ---
+    // Call this once everything is loaded.
+    if (typeof sdk !== 'undefined' && sdk.actions) {
+        try {
+            sdk.actions.ready();
+            console.log("✅ Farcaster Mini App is ready");
+        } catch (err) {
+            console.error("⚠️ Error calling sdk.actions.ready():", err);
+        }
+    } else {
+        console.warn("⚠️ Farcaster SDK not detected. If testing locally, this is normal.");
+    }
+
+}); // 👈 this closes your window.addEventListener('load', …)
+</script>
 </body>
 </html>
