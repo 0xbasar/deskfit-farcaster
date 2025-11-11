@@ -195,151 +195,151 @@
     </div>
 
     <script>
-        window.addEventListener('load', () => {
-            // --- DOM ELEMENTS ---
-            const getNewTaskButton = document.getElementById('getNewTaskButton');
-            const completeTaskButton = document.getElementById('completeTaskButton');
-            const skipTaskButton = document.getElementById('skipTaskButton');
-            const shareProgressButton = document.getElementById('shareProgressButton');
-            const taskDisplay = document.getElementById('taskDisplay');
-            const taskTextElement = taskDisplay.querySelector('.task-text');
-            const currentTaskXPElement = document.getElementById('currentTaskXP');
-            const totalXPDisplay = document.getElementById('xpValue');
-            const streakDisplay = document.getElementById('streakValue');
+    window.addEventListener('load', () => {
+        // --- DOM ELEMENTS ---
+        const getNewTaskButton = document.getElementById('getNewTaskButton');
+        const completeTaskButton = document.getElementById('completeTaskButton');
+        const skipTaskButton = document.getElementById('skipTaskButton');
+        const shareProgressButton = document.getElementById('shareProgressButton');
+        const taskDisplay = document.getElementById('taskDisplay');
+        const taskTextElement = taskDisplay.querySelector('.task-text');
+        const currentTaskXPElement = document.getElementById('currentTaskXP');
+        const totalXPDisplay = document.getElementById('xpValue');
+        const streakDisplay = document.getElementById('streakValue');
 
-            // --- APP STATE ---
-            let totalXP = 0;
-            let streak = 0;
-            let currentTask = null;
-            let farcasterUserFid = null; // Will store the user's Farcaster ID
+        // --- APP STATE ---
+        let totalXP = 0;
+        let streak = 0;
+        let currentTask = null;
+        let farcasterUserFid = null;
 
-            const tasks = [ { text: "Stand for 10 minutes", xp: 15 }, { text: "Take 3 floors with stairs", xp: 20 }, { text: "Skip snacks for today", xp: 25 }, { text: "Drink a glass of water", xp: 10 }, { text: "Stretch your arms overhead", xp: 10 }, { text: "Roll your shoulders backward 10 times", xp: 10 }, { text: "Walk one lap around the room", xp: 15 }, { text: "Walk while on a call", xp: 15 }, { text: "Do 10 squats", xp: 20 }, { text: "Touch your toes 10 times", xp: 15 }, { text: "Refill your water bottle", xp: 10 }, { text: "Do calf raises for 30 seconds", xp: 15 }, { text: "Walk to a colleague instead of messaging", xp: 20 }, { text: "Stand during your next meeting", xp: 15 }, { text: "March in place for 1 minute", xp: 15 }, { text: "Do a 2 minute stretch break", xp: 10 }, { text: "Take a short walk after lunch", xp: 20 }, { text: "Stand on one leg for 20 seconds per side", xp: 15 }, { text: "Do a wall sit for 30 seconds", xp: 20 }, { text: "Straighten your posture for 1 minute", xp: 10 }]; // Shortened for brevity
+        const tasks = [ { text: "Stand for 10 minutes", xp: 15 }, { text: "Take 3 floors with stairs", xp: 20 }, { text: "Skip snacks for today", xp: 25 }, { text: "Drink a glass of water", xp: 10 }, { text: "Stretch your arms overhead", xp: 10 }, { text: "Roll your shoulders backward 10 times", xp: 10 }, { text: "Walk one lap around the room", xp: 15 }, { text: "Walk while on a call", xp: 15 }, { text: "Do 10 squats", xp: 20 }, { text: "Touch your toes 10 times", xp: 15 }, { text: "Refill your water bottle", xp: 10 }, { text: "Do calf raises for 30 seconds", xp: 15 }, { text: "Walk to a colleague instead of messaging", xp: 20 }, { text: "Stand during your next meeting", xp: 15 }, { text: "March in place for 1 minute", xp: 15 }, { text: "Do a 2 minute stretch break", xp: 10 }, { text: "Take a short walk after lunch", xp: 20 }, { text: "Stand on one leg for 20 seconds per side", xp: 15 }, { text: "Do a wall sit for 30 seconds", xp: 20 }, { text: "Straighten your posture for 1 minute", xp: 10 }];
 
-            // --- DATA PERSISTENCE FUNCTIONS ---
-            function getStorageKey(key) {
-                // If we have a Farcaster user, create a unique key for them.
-                // Otherwise, use a generic key. This makes the app work everywhere.
-                return farcasterUserFid ? `deskfit_${key}_${farcasterUserFid}` : `deskfit_${key}_local`;
+        // --- DATA PERSISTENCE FUNCTIONS ---
+        function getStorageKey(key) {
+            return farcasterUserFid ? `deskfit_${key}_${farcasterUserFid}` : `deskfit_${key}_local`;
+        }
+
+        function loadState() {
+            const savedXP = localStorage.getItem(getStorageKey('totalXP'));
+            const savedStreak = localStorage.getItem(getStorageKey('streak'));
+            totalXP = savedXP ? parseInt(savedXP, 10) : 0;
+            streak = savedStreak ? parseInt(savedStreak, 10) : 0;
+            console.log(`State loaded for user ${farcasterUserFid || 'local'}: XP=${totalXP}, Streak=${streak}`);
+            updateDisplays();
+        }
+
+        function saveState() {
+            localStorage.setItem(getStorageKey('totalXP'), totalXP);
+            localStorage.setItem(getStorageKey('streak'), streak);
+            console.log(`State saved for user ${farcasterUserFid || 'local'}`);
+        }
+
+        // --- UI UPDATE FUNCTIONS ---
+        function updateDisplays() {
+            totalXPDisplay.textContent = totalXP;
+            streakDisplay.textContent = streak;
+        }
+
+        function showTaskActionButtons(show) {
+            completeTaskButton.style.display = show ? 'block' : 'none';
+            skipTaskButton.style.display = show ? 'block' : 'none';
+            getNewTaskButton.style.display = show ? 'none' : 'block';
+        }
+
+        // --- CORE APP LOGIC ---
+        function getNewTask() {
+            const randomIndex = Math.floor(Math.random() * tasks.length);
+            currentTask = tasks[randomIndex];
+            taskDisplay.classList.remove('new-task');
+            void taskDisplay.offsetWidth;
+            taskTextElement.textContent = currentTask.text;
+            currentTaskXPElement.textContent = `${currentTask.xp} XP`;
+            taskDisplay.classList.add('new-task');
+            showTaskActionButtons(true);
+        }
+
+        function completeTask() {
+            if (!currentTask) return;
+            totalXP += currentTask.xp;
+            streak++;
+            updateDisplays();
+            saveState();
+            currentTask = null;
+            taskTextElement.textContent = "Great job! Get a new task.";
+            currentTaskXPElement.textContent = "";
+            showTaskActionButtons(false);
+        }
+
+        function skipTask() {
+            if (!currentTask) return;
+            streak = 0;
+            updateDisplays();
+            saveState();
+            currentTask = null;
+            taskTextElement.textContent = "Task skipped. Try another one!";
+            currentTaskXPElement.textContent = "";
+            showTaskActionButtons(false);
+        }
+        
+        async function shareToFarcaster() {
+            const castText = `I just earned ${totalXP} XP with a ${streak}-day streak on DeskFit! Feeling good 💪 #deskfit`;
+            try {
+                await Farcaster.actions.cast({
+                    text: castText,
+                    embeds: [{ url: window.location.href }]
+                });
+            } catch (error) {
+                console.error("Farcaster cast action failed:", error);
+                alert("Could not open Farcaster to share.");
+            }
+        }
+
+        // --- MAIN INITIALIZATION FUNCTION ---
+        async function initializeApp() {
+            console.log("App window loaded. Initializing...");
+
+            // THE FIX: Call ready() as soon as the Farcaster object is available.
+            // This tells the client to remove the loading screen immediately.
+            if (typeof Farcaster !== 'undefined' && Farcaster.actions) {
+                console.log("Farcaster object found. Calling Farcaster.actions.ready().");
+                Farcaster.actions.ready();
+                console.log("Farcaster.actions.ready() has been called.");
+            } else {
+                console.log("Not in a Farcaster client environment. Farcaster.actions.ready() will not be called.");
             }
 
-            function loadState() {
-                const savedXP = localStorage.getItem(getStorageKey('totalXP'));
-                const savedStreak = localStorage.getItem(getStorageKey('streak'));
-                if (savedXP !== null) totalXP = parseInt(savedXP, 10);
-                if (savedStreak !== null) streak = parseInt(savedStreak, 10);
-                updateDisplays();
-            }
-
-            function saveState() {
-                localStorage.setItem(getStorageKey('totalXP'), totalXP);
-                localStorage.setItem(getStorageKey('streak'), streak);
-            }
-
-            // --- UI UPDATE FUNCTIONS ---
-            function updateDisplays() {
-                totalXPDisplay.textContent = totalXP;
-                streakDisplay.textContent = streak;
-            }
-
-            function showTaskActionButtons(show) {
-                completeTaskButton.style.display = show ? 'block' : 'none';
-                skipTaskButton.style.display = show ? 'block' : 'none';
-                getNewTaskButton.style.display = show ? 'none' : 'block';
-            }
-
-            // --- CORE APP LOGIC ---
-            function getNewTask() {
-                const randomIndex = Math.floor(Math.random() * tasks.length);
-                currentTask = tasks[randomIndex];
-                taskDisplay.classList.remove('new-task');
-                void taskDisplay.offsetWidth; // Force reflow for animation restart
-                taskTextElement.textContent = currentTask.text;
-                currentTaskXPElement.textContent = `${currentTask.xp} XP`;
-                taskDisplay.classList.add('new-task');
-                showTaskActionButtons(true);
-            }
-
-            function completeTask() {
-                if (!currentTask) return;
-                totalXP += currentTask.xp;
-                streak++;
-                updateDisplays();
-                saveState();
-                currentTask = null;
-                taskTextElement.textContent = "Great job! Get a new task.";
-                currentTaskXPElement.textContent = "";
-                showTaskActionButtons(false);
-            }
-
-            function skipTask() {
-                if (!currentTask) return;
-                streak = 0; // Reset streak on skip
-                updateDisplays();
-                saveState();
-                currentTask = null;
-                taskTextElement.textContent = "Task skipped. Try another one!";
-                currentTaskXPElement.textContent = "";
-                showTaskActionButtons(false);
-            }
-            
-            async function shareToFarcaster() {
-                const castText = `I just earned ${totalXP} XP with a ${streak}-day streak on DeskFit! Feeling good 💪 #deskfit`;
-                
+            // Now, continue with the rest of the Farcaster-specific setup.
+            // This part can happen after the app is already visible to the user.
+            if (typeof Farcaster !== 'undefined' && Farcaster.getUser) {
                 try {
-                    // Use the Farcaster SDK to open the cast composer
-                    await Farcaster.actions.cast({
-                        text: castText,
-                        embeds: [{ url: window.location.href }] // Embed a link back to your app!
-                    });
-                } catch (error) {
-                    console.error("Farcaster cast action failed:", error);
-                    // Optionally, show an error to the user
-                    alert("Could not open Farcaster to share.");
-                }
-            }
-
-
-            // --- FARCASTER-SPECIFIC INITIALIZATION ---
-            async function initializeApp() {
-                // Check if the Farcaster object is available
-                if (typeof Farcaster !== 'undefined' && Farcaster.getUser) {
-                    try {
-                        const user = await Farcaster.getUser();
-                        if (user.status === 'approved') {
-                            farcasterUserFid = user.fid;
-                            console.log("Farcaster user approved. FID:", farcasterUserFid);
-                            shareProgressButton.style.display = 'block'; // Show the share button
-                        } else {
-                            console.log("Farcaster user not approved.");
-                        }
-                    } catch (error) {
-                        console.error("Error getting Farcaster user:", error);
+                    const user = await Farcaster.getUser();
+                    if (user && user.status === 'approved') {
+                        farcasterUserFid = user.fid;
+                        console.log("Farcaster user approved. FID:", farcasterUserFid);
+                        shareProgressButton.style.display = 'block';
+                    } else {
+                        console.log("Farcaster user not approved or not found.");
                     }
-                } else {
-                    console.log("Not in a Farcaster client environment.");
-                }
-
-                // Load state (which now depends on farcasterUserFid) and set up UI
-                loadState();
-                showTaskActionButtons(false);
-
-                // Add event listeners
-                getNewTaskButton.addEventListener('click', getNewTask);
-                completeTaskButton.addEventListener('click', completeTask);
-                skipTaskButton.addEventListener('click', skipTask);
-                shareProgressButton.addEventListener('click', shareToFarcaster);
-
-                // Tell the Farcaster client that the app is ready to be displayed.
-                // This removes the loading spinner.
-                if (typeof Farcaster !== 'undefined' && Farcaster.actions) {
-                    // Using a small timeout can help prevent race conditions in some clients.
-                    setTimeout(() => Farcaster.actions.ready(), 100);
+                } catch (error) {
+                    console.error("Error getting Farcaster user:", error);
                 }
             }
 
-            // Start the app!
-            initializeApp();
-        });
-    </script>
+            // Load state (which now correctly uses the FID if available) and set up UI
+            loadState();
+            showTaskActionButtons(false);
+
+            // Add all event listeners
+            getNewTaskButton.addEventListener('click', getNewTask);
+            completeTaskButton.addEventListener('click', completeTask);
+            skipTaskButton.addEventListener('click', skipTask);
+            shareProgressButton.addEventListener('click', shareToFarcaster);
+        }
+
+        // Start the app!
+        initializeApp();
+    });
+</script>
 </body>
 </html>
