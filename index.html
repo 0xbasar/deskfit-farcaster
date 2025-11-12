@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeskFit - Your Micro-Habit Tracker</title>
 
-    <!-- FARCASTER META TAGS -->
+    <!-- 
+      ==================================================================
+      == ESSENTIAL FARCASTER META TAGS                                ==
+      == These MUST be in the raw HTML file served by your host.      ==
+      ==================================================================
+    -->
     <meta property="fc:frame" content="vNext" />
-    <meta property="fc:frame:image" content="https://i.imgur.com/uR3JATB.png" />
+    <meta property="fc:frame:image" content="https://i.imgur.com/uR3JATB.png" /> 
     <meta property="og:image" content="https://i.imgur.com/uR3JATB.png" />
     <meta property="fc:frame:button:1" content="Start Your Micro-Habits" />
     <meta property="og:title" content="DeskFit - Your Micro-Habit Tracker" />
@@ -63,8 +68,6 @@
     </div>
 
     <script>
-        // Use DOMContentLoaded which fires when the HTML document is fully parsed,
-        // which is more reliable than 'load'.
         document.addEventListener('DOMContentLoaded', () => {
             
             // --- DOM ELEMENTS ---
@@ -82,9 +85,8 @@
             let totalXP = 0;
             let streak = 0;
             let currentTask = null;
-            let farcasterUserFid = null; // Will store the user's Farcaster ID
+            let farcasterUserFid = null;
 
-            // A smaller task list for cleaner code. You can paste your full list back in.
             const tasks = [ { text: "Stand for 10 minutes", xp: 15 }, { text: "Take 3 floors with stairs", xp: 20 }, { text: "Skip snacks for today", xp: 25 }, { text: "Drink a glass of water", xp: 10 }, { text: "Stretch your arms overhead", xp: 10 }, { text: "Do 10 squats", xp: 20 }, { text: "Walk while on a call", xp: 15 }, { text: "Do a wall sit for 30 seconds", xp: 20 }];
 
             // --- DATA PERSISTENCE ---
@@ -127,7 +129,7 @@
                 const randomIndex = Math.floor(Math.random() * tasks.length);
                 currentTask = tasks[randomIndex];
                 taskDisplay.classList.remove('new-task');
-                void taskDisplay.offsetWidth; // Force reflow for animation
+                void taskDisplay.offsetWidth;
                 taskTextElement.textContent = currentTask.text;
                 currentTaskXPElement.textContent = `${currentTask.xp} XP`;
                 taskDisplay.classList.add('new-task');
@@ -148,7 +150,7 @@
 
             const skipTask = () => {
                 if (!currentTask) return;
-                streak = 0; // Reset streak
+                streak = 0;
                 saveState();
                 updateDisplays();
                 currentTask = null;
@@ -169,51 +171,36 @@
             
             // --- FARCASTER INTEGRATION ---
             const initializeFarcaster = async () => {
-                // This is the MOST IMPORTANT part for the "Ready not called" error.
-                // We call ready() immediately.
                 if (Farcaster.actions) {
-                    console.log("Farcaster SDK detected. Calling ready().");
                     Farcaster.actions.ready();
                 }
-
                 try {
                     const user = await Farcaster.getUser();
                     if (user && user.status === 'approved') {
                         farcasterUserFid = user.fid;
-                        console.log("Farcaster user approved. FID:", farcasterUserFid);
-                        shareProgressButton.style.display = 'block'; // Show share button
-                        
-                        // IMPORTANT: Re-load state now that we have the FID
-                        loadState();
+                        shareProgressButton.style.display = 'block';
+                        loadState(); // Reload state with the user's specific FID
                     }
                 } catch (error) {
                     console.error("Error getting Farcaster user:", error);
                 }
             };
 
-
             // --- APP INITIALIZATION ---
             const initializeApp = () => {
-                console.log("Initializing DeskFit App...");
-                // Set up event listeners for core app functionality
                 getNewTaskButton.addEventListener('click', getNewTask);
                 completeTaskButton.addEventListener('click', completeTask);
                 skipTaskButton.addEventListener('click', skipTask);
                 shareProgressButton.addEventListener('click', shareToFarcaster);
                 
-                // Load the initial state (for non-Farcaster users or before FID is known)
-                loadState();
+                loadState(); // Load local/default state first
                 showTaskActionButtons(false);
                 
-                // Check for Farcaster environment and enhance the app if present
-                if (typeof Farcaster !== 'undefined') {
+                if (typeof Farcaster !== 'undefined' && Farcaster.getUser) {
                     initializeFarcaster();
-                } else {
-                    console.log("Not in a Farcaster client environment.");
                 }
             };
 
-            // Start the application!
             initializeApp();
         });
     </script>
