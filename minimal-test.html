@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Farcaster Test</title>
+    <script src="https://farcaster.dev/js/index.js"></script>
+    <style>
+        body { font-family: sans-serif; background-color: #1a1a1a; color: #00ff00; padding: 2em; }
+        h1 { color: #ff00ff; }
+    </style>
+</head>
+<body>
+    <h1>Minimal Farcaster Test Page</h1>
+    <p>Check the developer console for logs.</p>
+
+    <script>
+        // Use a function to avoid polluting the global scope
+        function runTest() {
+            console.log("--- Farcaster Mini-App Test Started ---");
+            alert("Test Started. Check console.");
+
+            // Log information about the environment
+            console.log("Current window:", window);
+            console.log("Is this inside an iframe?", window.self !== window.top);
+
+            // Check for the Farcaster object
+            if (typeof Farcaster !== 'undefined') {
+                console.log("SUCCESS: `Farcaster` object FOUND on the window.", Farcaster);
+                
+                if (Farcaster.actions && typeof Farcaster.actions.ready === 'function') {
+                    console.log("SUCCESS: `Farcaster.actions.ready` function FOUND.");
+                    
+                    // Call the ready function with a delay, inside a try/catch
+                    console.log("Attempting to call Farcaster.actions.ready() in 200ms...");
+                    setTimeout(() => {
+                        try {
+                            Farcaster.actions.ready();
+                            console.log("SUCCESS: `Farcaster.actions.ready()` was called without error.");
+                            alert("SUCCESS: Called Farcaster.actions.ready()");
+                        } catch (e) {
+                            console.error("CRITICAL ERROR during .ready() call:", e);
+                            alert("CRITICAL ERROR during .ready() call: " + e.message);
+                        }
+                    }, 200);
+
+                } else {
+                    console.error("FAILURE: `Farcaster` object exists, but `actions.ready` is missing or not a function.");
+                    alert("FAILURE: `actions.ready` is missing.");
+                }
+            } else {
+                console.error("FAILURE: `Farcaster` object is NOT DEFINED on the window.");
+                alert("FAILURE: Farcaster object not found.");
+            }
+        }
+
+        // Run the test after the entire window, including scripts, has loaded.
+        window.addEventListener('load', runTest);
+    </script>
+</body>
+</html>
